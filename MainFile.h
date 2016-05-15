@@ -28,6 +28,8 @@ void checkButtons(void);	//Initializes a button check (Shouldn't need to be run 
 
 extern int play1pMario(void);	//Plays a 1p mario "turn" returns 0 if terminating. 1 if not.
 
+extern int play2pMario(void); //Plays a 2p mario "turn" returns 0 if terminating, 1 if not, 2 if p1 wins, 3 if p2 wins
+
 extern void updateSheet(int state, uint8_t color);	//Loads slide animation in state state and background color color
 
 extern void rainbowTest(void);	//Loads a rainbow into backdrop
