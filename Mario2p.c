@@ -256,7 +256,7 @@ int play2pMario(void){ //Return 0 if terminating, 1 if not done, 2 if 1p wins, 3
 	if (xDrawBot < 0) {xDrawBot = 0;}
 	loadtoBackBufferFullMario(xDrawBot, yDrawBot, 0, 4, 0, 0, 1, 0, 1);
 	swapScreens();
-	delay(2500);
+	delay(10000);
 	if(topDone == 1 && botDone == 1){
 		return finishedFirst + 1;
 	}
