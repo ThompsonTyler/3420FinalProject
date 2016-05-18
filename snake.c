@@ -20,7 +20,7 @@ int gameState = 0;
    4: Left
 
  */
-int direction = 2;
+int direction = 1;
 
 List *snake;
 coordinate *coordinate_create(int x, int y);
@@ -55,7 +55,7 @@ void initGame(void) {
 	coordinate *tail1;
   coordinate *tail2;
   gameState = 1;
-  backdrop[5][3] = 1;
+
 
   snake = List_create();
 
@@ -63,8 +63,8 @@ void initGame(void) {
   fruit = coordinate_create(5, 1);
   head = coordinate_create(4, 6);
   intermediate = coordinate_create(4, 6);
-	tail1 = coordinate_create(2, 6);
-	tail2= coordinate_create(3, 6);
+	tail1 = coordinate_create(4, 6);
+	tail2 = coordinate_create(4, 6);
   
 	List_push(snake, head);
   List_push(snake, tail1);
