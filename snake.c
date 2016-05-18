@@ -98,14 +98,15 @@ void move(void) {
 }
 
 void generateFruit(void) {
+	ListNode *temp;
 	int overlap = 0;
 	time_t t = time(NULL);
 	srand(t);
 	
 	do {
+		temp = snake->first;
 		fruit->x = rand() % 7;
 		fruit->y = rand() % 7;
-		ListNode *temp = snake->first;
 		while(temp != NULL){
 			if(fruit->x == ((coordinate *)temp->value)->x && fruit->y == ((coordinate *)temp->value)->y){
 				overlap = 1;
