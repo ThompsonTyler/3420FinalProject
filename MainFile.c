@@ -47,7 +47,7 @@ uint8_t backdrop[8][8] = {{0,0,0,0,0,0,0,0}, //Screen reprsenting the back end, 
 													{0,0,0,0,0,0,0,0},
 													{0,0,0,0,0,0,0,0}};
 													
-uint8_t load_screens[2][8][8] = {{{CLEAR,CLEAR,CLEAR,RED,RED,RED,WHITE,CLEAR}, //Mario Character
+uint8_t load_screens[3][8][8] = {{{CLEAR,CLEAR,CLEAR,RED,RED,RED,WHITE,CLEAR}, //Mario Character
 																 {CLEAR,CLEAR,CLEAR,RED,RED,RED,RED,RED},
 																 {CLEAR,CLEAR,YELLOW,WHITE,YELLOW,GREEN,WHITE,CLEAR},
 																 {CLEAR,CLEAR,YELLOW,WHITE,WHITE,YELLOW,YELLOW,WHITE},
@@ -57,6 +57,15 @@ uint8_t load_screens[2][8][8] = {{{CLEAR,CLEAR,CLEAR,RED,RED,RED,WHITE,CLEAR}, /
 																 {CLEAR,CLEAR,MAGENTA,CLEAR,CLEAR,CLEAR,MAGENTA,CLEAR}},
 
 																 {{3,3,0,0,0,0,3,3}, //Red and white M
+																 {3,3,3,0,0,3,3,3},
+																 {3,3,3,0,0,3,3,3},
+																 {3,3,3,3,3,3,3,3},
+																 {3,3,0,3,3,0,3,3},
+																 {3,3,0,0,0,0,3,3},
+																 {3,3,0,0,0,0,3,3},
+																 {3,3,0,0,0,0,3,3}},
+
+																 {{1,1,1,1,1,1,1,1}, //Red and white M
 																 {3,3,3,0,0,3,3,3},
 																 {3,3,3,0,0,3,3,3},
 																 {3,3,3,3,3,3,3,3},
@@ -366,6 +375,7 @@ int main(void){
 	PIT -> CHANNEL[0].TCTRL = 3;
 	PIN_Initialize();
 	setupPins();
+	//PORTB->PCR[2] = (PORTB->PCR[2] & ~ PORT_PCR_IRQC_MASK) | ((0xB << 16) & PORT_PCR_IRQC_MASK);
 	NVIC_EnableIRQ(PIT0_IRQn);
 	//End of interrupt/basic setups
 	gamestate = 0; //Default values
@@ -396,6 +406,12 @@ int main(void){
 			}
 			else if(selector == 1){
 				statusGame = play2pMario();
+				if(statusGame != 1){
+					end = 1;
+				}
+			}
+			else if(selector == 2){
+				statusGame = playSnake();
 				if(statusGame != 1){
 					end = 1;
 				}
