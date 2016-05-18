@@ -71,36 +71,32 @@ void initGame(void) {
   List_push(snake, tail2);
 }
 
-void moveBody(void) {
-  ListNode *temp = snake->first->next;
-  while (temp != NULL) {
-    int tempx = ((coordinate *)temp->value)->x;
-    int tempy = ((coordinate *)temp->value)->y;
-    ((coordinate*)temp->value)->x = intermediate->x;
-    ((coordinate*)temp->value)->y = intermediate->y;
-    intermediate->x = tempx;
-    intermediate->y = tempy;
-    temp = temp->next;
-  }
+void moveBody(void){
+	ListNode *temp = snake->last;
+	while(temp->prev != NULL){
+		((coordinate *)temp->value)->x = ((coordinate*)temp->prev->value)->x;
+		((coordinate *)temp->value)->y = ((coordinate*)temp->prev->value)->y;
+		temp = temp->prev;
+	}
 }
 
 void move(void) {
   switch (direction) {
   case 1:
-    head->y++;
     moveBody();
+		head->y--;
     break;
   case 2:
+		moveBody();
     head->x++;
-    moveBody();
     break;
   case 3:
-    head->y--;
     moveBody();
+		head->y++;
     break;
   case 4:
-    head->x--;
     moveBody();
+		head->x--;
   }
 }
 
@@ -170,34 +166,36 @@ void checkUpdate(void) {
   if (left) {
     switch (direction) {
     case 1:
-      direction = 4;
-      break;
-    case 2:
-      direction = 1;
-      break;
-    case 3:
       direction = 2;
       break;
-    case 4:
+    case 2:
       direction = 3;
-    default:
+      break;
+    case 3:
+      direction = 4;
+      break;
+    case 4:
       direction = 1;
+			break;
+    default:
+      direction = 4;
     }
   } else if (right) {
     switch (direction) {
     case 1:
-      direction = 2;
-      break;
-    case 2:
-      direction = 3;
-      break;
-    case 3:
       direction = 4;
       break;
+    case 2:
+      direction = 1;
+      break;
+    case 3:
+      direction = 2;
+      break;
     case 4:
-      direction = 1;
+      direction = 3;
+			break;
     default:
-      direction = 1;
+      direction = 4;
     }
   }
 }
@@ -213,10 +211,10 @@ int playSnake(void) {
     endGame();
   } else {
     updateBoard();
-    delay(30000);
   }
 
   swapScreens();
+	delay(60000);
 
   return gameState;
 }
