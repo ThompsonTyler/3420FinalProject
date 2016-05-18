@@ -1,4 +1,5 @@
 #include "MK64F12.h"
+#include "stdlib.h"
 
 #define WHITE  0 //Color Definitions
 #define MAGENTA 1

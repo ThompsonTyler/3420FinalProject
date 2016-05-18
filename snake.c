@@ -39,14 +39,13 @@ void resetGame(void);
 int playSnake(void);
 
 coordinate *coordinate_create(int x, int y) {
-  coordinate *coord = malloc(sizeof(coordiate));
+  coordinate *coord = malloc(sizeof(coordinate));
   coord->x = x;
   coord->y = y;
   return coord;
 }
 
 void coordinate_destroy(coordinate *coord) {
-  assert(coord != NULL);
 
   free(coord);
 }
@@ -54,15 +53,12 @@ void coordinate_destroy(coordinate *coord) {
 void initGame(void) {
   int gamestate = 1;
 
-  backdrop = {{0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 2, 0, 0},
-              {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
-              {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
-              {0, 0, 1, 1, 1, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}};
+  backdrop[5][3] = 1;
 
   snake = List_create();
 
   /*Create inital snake of 3 length at bottom left of display*/
-  fruit = cooridate_create(5, 1);
+  fruit = coordinate_create(5, 1);
   head = coordinate_create(4, 6);
   intermediate = coordinate_create(4, 6);
 
@@ -90,20 +86,19 @@ void move(void) {
   switch (direction) {
   case 1:
     head->y++;
-    moveBody(snake);
+    moveBody();
     break;
   case 2:
     head->x++;
-    moveBody(snake);
+    moveBody();
     break;
   case 3:
     head->y--;
-    moveBody(snake);
+    moveBody();
     break;
   case 4:
     head->x--;
-    moveBody(snake);
-  default:
+    moveBody();
   }
 }
 
