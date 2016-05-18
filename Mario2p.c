@@ -23,6 +23,18 @@ uint8_t marioBackup[4][20] = {{7,7,7,7,7,7,7,6,7,7,7,7,7,7,7,7,7,7,6,3},
 														  {7,7,7,6,7,7,7,7,7,7,7,7,7,7,7,7,6,7,7,3},
 														  {6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,0}};
 															
+void mario2pReset(void){
+	xMarTop = 2;
+	yMarTop = 2;
+	stateMarTop = 0;
+	
+	xMarBot = 2;
+	yMarBot = 2;
+	stateMarBot = 0;
+	
+	finishedFirst = 0;
+}
+																
 void replaceAllMario(uint8_t base, uint8_t replace){ //Iterates through marioBack and sets all colors of base to color of replace
 	uint8_t lineIndex;
 	uint8_t rowIndex;
@@ -256,7 +268,7 @@ int play2pMario(void){ //Return 0 if terminating, 1 if not done, 2 if 1p wins, 3
 	if (xDrawBot < 0) {xDrawBot = 0;}
 	loadtoBackBufferFullMario(xDrawBot, yDrawBot, 0, 4, 0, 0, 1, 0, 1);
 	swapScreens();
-	delay(10000);
+	delay(6000);
 	if(topDone == 1 && botDone == 1){
 		return finishedFirst + 1;
 	}

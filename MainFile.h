@@ -1,6 +1,8 @@
 #include "MK64F12.h"
 #include "stdlib.h"
 #include "time.h" 
+#include "string.h"
+#include "stdio.h"
 
 #define WHITE  0 //Color Definitions
 #define MAGENTA 1
@@ -32,8 +34,16 @@ extern int play1pMario(void);	//Plays a 1p mario "turn" returns 0 if terminating
 
 extern int play2pMario(void); //Plays a 2p mario "turn" returns 0 if terminating, 1 if not, 2 if p1 wins, 3 if p2 wins
 
+extern void mario2pReset(void);
+
+extern void snakeReset(void);
+
 extern void updateSheet(int state, uint8_t color);	//Loads slide animation in state state and background color color
 
 extern void rainbowTest(void);	//Loads a rainbow into backdrop
 
 extern int playSnake(void);
+
+extern void buildScroller(char *str);
+
+extern int scroll(int colorize, int color);

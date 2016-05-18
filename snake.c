@@ -1,6 +1,7 @@
 #include "list.h"
 const int gridWidth = 8;
 const int gridLength = 8;
+char scorez[8];
 
 typedef struct {
   int x;
@@ -53,6 +54,8 @@ void initGame(void) {
 	coordinate *tail1;
   coordinate *tail2;
   gameState = 1;
+	direction = 1;
+	score = 0;
 
 
   snake = List_create();
@@ -153,14 +156,17 @@ void updateBoard(void) {
 	temp = snake->first;
   clearBack();
 	
+	backdrop[((coordinate *)(temp->value))->x][((coordinate *)(temp->value))->y] = 3;
+	temp= temp->next;
+	
 	while(temp != NULL){
 		int x = ((coordinate *)(temp->value))->x;
 		int y = ((coordinate *)(temp->value))->y;
-		backdrop[x][y] = 1;
+		backdrop[x][y] = 2;
 		temp = temp->next;
 	}
 
-  backdrop[fruit->x][fruit->y] = 2;
+  backdrop[fruit->x][fruit->y] = 6;
 }
 
 void endGame(void) {
@@ -217,6 +223,8 @@ int playSnake(void) {
   checkState();
   if (gameState == 0) {
     endGame();
+		sprintf(scorez, "SCORE %d", score);
+		buildScroller(scorez);
   } else {
     updateBoard();
   }
