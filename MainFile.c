@@ -158,6 +158,7 @@ void sendBit(int data){ //Function that sends 1 bit along shift register
 void sendDataFromArray(void){ //Iterates through screen and displays to matrix
 	uint8_t lineIndex;
 	uint8_t rowIndex;
+	PIT->CHANNEL[0].TCTRL = 1;
 	
 	for(lineIndex = 0; lineIndex < 8; lineIndex++){
 		//Ground anode
@@ -204,6 +205,7 @@ void sendDataFromArray(void){ //Iterates through screen and displays to matrix
 		pinTrigger(LATCH, HIGH);
 		pinTrigger(LATCH, LOW);
 	}
+	PIT->CHANNEL[0].TCTRL = 3;
 }
 
 void clearBack(void){ //Set screen to empty/clear
@@ -250,7 +252,8 @@ void setupPins(void){ //Setups the pins starting position for controlling shift 
 }
 
 void checkButtons(){  //Checks the state of all buttons, setting buttons to 1 on rising edge and buttonsLast to the real-time state
-	if(PTB->PDIR & 4){ //Button PTB2, P1L
+	__disable_irq();
+	if(PTB->PDIR & 8){ //Button PTB3, P1L
 		if(buttonsLast[0]){
 			buttons[0] = 0;
 		}
@@ -264,7 +267,7 @@ void checkButtons(){  //Checks the state of all buttons, setting buttons to 1 on
 		buttonsLast[0] = 0;
 	}
 	
-	if(PTB->PDIR & 8){ //Button PTB3, P1R
+	if(PTB->PDIR & 4){ //Button PTB2, P1R
 		if(buttonsLast[1]){
 			buttons[1] = 0;
 		}
@@ -333,6 +336,7 @@ void checkButtons(){  //Checks the state of all buttons, setting buttons to 1 on
 		buttons[5] = 0;
 		buttonsLast[5] = 0;
 	}
+	__enable_irq();
 }	 
 
 void loadtoBack(void){ //Sets backdrop to the load_screen represented by the global variable selector
@@ -349,12 +353,12 @@ void loadtoBack(void){ //Sets backdrop to the load_screen represented by the glo
 void PIT0_IRQHandler(void){
 	PIT->CHANNEL[0].TFLG = 1;
 	sendDataFromArray();
+	PIT -> CHANNEL[0].LDVAL = 0x85EA;
 }
 
 int main(void){
 	int modLoads = sizeof(load_screens) / sizeof(load_screens[0]);
 	int statusGame;
-	int i;
 	//Interrupt and basic setups, do not remove
 	SIM -> SCGC6 |= SIM_SCGC6_PIT_MASK;
 	PIT -> MCR = 0;
@@ -384,10 +388,15 @@ int main(void){
 			swapScreens();//update screen to loadscreen
 		}
 		else if(gamestate == 1){ //Game being played
-			if(selector == 0 || 1){//Mario 1p
+			if(selector == 0){//Mario 1p
 				statusGame = play1pMario();//Run mario game engine
-				for(i = 0; i < 5000; i ++){};//Slight delay to allow for human interaction
-				if(statusGame == 0){//Check if game is done
+				if(statusGame != 1){//Check if game is done
+					end = 1;
+				}
+			}
+			else if(selector == 1){
+				statusGame = play2pMario();
+				if(statusGame != 1){
 					end = 1;
 				}
 			}
@@ -398,7 +407,15 @@ int main(void){
 		delay(5000); 
 		selector++;
 		selector = mod(selector, 12);
-		updateSheet(selector, RED);
+		if(statusGame == 2){
+			updateSheet(selector, BLUE);
+		}
+		else if(statusGame == 3){
+			updateSheet(selector, GREEN);
+		}
+		else{
+			updateSheet(selector, RED);
+		}
 		swapScreens();
 	}
 }
