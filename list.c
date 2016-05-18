@@ -3,17 +3,21 @@
 List *List_create() { return calloc(1, sizeof(List)); }
 
 void List_destroy(List *list) {
-  LIST_FOREACH(list, first, next, cur) {
-    if (cur->prev) {
-      free(cur->value);
-    }
-  }
+	free(list->first);
   free(list->last);
   free(list);
 }
 
 void List_clear(List *list) {
-  LIST_FOREACH(list, first, next, cur) { free(cur->value); }
+  ListNode *temp = list->first;
+	
+	while(temp != NULL){
+		free(temp->value);
+		temp = temp->next;
+		/*ListNode *temporal = temp->next;
+		free(temp);
+		temp = temporal;*/
+	}
 }
 
 void List_clear_destroy(List *list) {
@@ -23,7 +27,7 @@ void List_clear_destroy(List *list) {
 
 void List_push(List *list, void *value) {
   ListNode *node = calloc(1, sizeof(ListNode));
-  if (*node == NULL) {
+  if (node == NULL) {
     return;
   }
 
@@ -65,7 +69,7 @@ void List_unshift(List *list, void *value) {
 }
 
 void *List_shift(List *list) {
-  void ListNode *node = list->first;
+  ListNode *node = list->first;
   return node != NULL ? List_remove(list, node) : NULL;
 }
 
@@ -73,7 +77,7 @@ void *List_remove(List *list, ListNode *node) {
   void *result = NULL;
 
   if ((list->first == NULL && list->last == NULL) || (node == NULL)) {
-    return;
+    return NULL;
   }
 
   if (node == list->first && node == list->last) {

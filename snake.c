@@ -1,4 +1,5 @@
 #include "list.h"
+#include "time.h" 
 const int gridWidth = 8;
 const int gridLength = 8;
 
@@ -10,7 +11,7 @@ typedef struct {
 coordinate *head;
 coordinate *intermediate;
 coordinate *fruit;
-int gamestate = 0;
+int gameState = 0;
 
 /*Directions
    1: Up
@@ -51,8 +52,9 @@ void coordinate_destroy(coordinate *coord) {
 }
 
 void initGame(void) {
-  int gamestate = 1;
-
+	coordinate *tail1;
+  coordinate *tail2;
+  gameState = 1;
   backdrop[5][3] = 1;
 
   snake = List_create();
@@ -61,21 +63,21 @@ void initGame(void) {
   fruit = coordinate_create(5, 1);
   head = coordinate_create(4, 6);
   intermediate = coordinate_create(4, 6);
-
-  List_push(snake, head);
-  coordinate *tail1 = coordinate_create(3, 6);
+	tail1 = coordinate_create(2, 6);
+	tail2= coordinate_create(3, 6);
+  
+	List_push(snake, head);
   List_push(snake, tail1);
-  coordinate *tail2 = coordinate_create(2, 6);
   List_push(snake, tail2);
 }
 
 void moveBody(void) {
   ListNode *temp = snake->first->next;
   while (temp != NULL) {
-    int tempx = temp->value->x;
-    int tempy = temp->value->y;
-    temp->value->x = intermediate->x;
-    temp->value->y = intermediate->y;
+    int tempx = ((coordinate *)temp->value)->x;
+    int tempy = ((coordinate *)temp->value)->y;
+    ((coordinate*)temp->value)->x = intermediate->x;
+    ((coordinate*)temp->value)->y = intermediate->y;
     intermediate->x = tempx;
     intermediate->y = tempy;
     temp = temp->next;
@@ -103,14 +105,15 @@ void move(void) {
 }
 
 void generateFruit(void) {
-  srand(time());
+	time_t t = time(NULL);
+  srand(t);
   fruit->x = rand() % 7;
   fruit->y = rand() % 7;
 }
 
 void growSnake(void) {
-  int x = snake->last->value->x;
-  int y = snake->last->value->y;
+  int x = ((coordinate *)snake->last->value)->x;
+  int y = ((coordinate * )snake->last->value)->y;
   coordinate *coord = coordinate_create(x, y);
   List_push(snake, coord);
 }
@@ -118,7 +121,7 @@ void growSnake(void) {
 int selfCollision(void) {
   ListNode *temp = snake->first->next;
   while (temp != NULL) {
-    if (temp->value->x == head->x && temp->value->y == head->y) {
+    if (((coordinate*) temp->value)->x == head->x && ((coordinate *)temp->value)->y == head->y) {
       return 1;
     }
     temp = temp->next;
@@ -130,24 +133,33 @@ void checkState(void) {
 
   // snake out of bounds
   if (head->x < 0 || head->x > 7 || head->y < 0 || head->y > 7) {
-    gamestate = 0;
+    gameState = 0;
   } else if (head->x == fruit->x && head->y == fruit->y) {
     generateFruit();
     growSnake();
   } else if (selfCollision()) {
-    gamestate = 0;
+    gameState = 0;
   }
 }
 
 void updateBoard(void) {
+	
+	ListNode *temp; 
+	temp = snake->first;
   clearBack();
-  LIST_FOREACH(snake, first, next, cur) { board[cur->x][cur->y] = 1; }
+	
+	while(temp != NULL){
+		int x = ((coordinate *)(temp->value))->x;
+		int y = ((coordinate *)(temp->value))->y;
+		backdrop[x][y] = 1;
+		temp = temp->next;
+	}
 
   backdrop[fruit->x][fruit->y] = 2;
 }
 
 void endGame(void) {
-  List_destroy(snake);
+  List_clear_destroy(snake);
   coordinate_destroy(intermediate);
   coordinate_destroy(fruit);
 }
@@ -191,13 +203,13 @@ void checkUpdate(void) {
 }
 
 int playSnake(void) {
-  if (!gamestate) {
+  if (!gameState) {
     initGame();
   }
   checkUpdate();
   move();
   checkState();
-  if (gamestate == 0) {
+  if (gameState == 0) {
     endGame();
   } else {
     updateBoard();
@@ -206,5 +218,5 @@ int playSnake(void) {
 
   swapScreens();
 
-  return gamestate;
+  return gameState;
 }
