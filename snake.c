@@ -9,7 +9,6 @@ typedef struct {
 } coordinate;
 
 coordinate *head;
-coordinate *intermediate;
 coordinate *fruit;
 int gameState = 0;
 
@@ -47,7 +46,6 @@ coordinate *coordinate_create(int x, int y) {
 }
 
 void coordinate_destroy(coordinate *coord) {
-
   free(coord);
 }
 
@@ -62,7 +60,6 @@ void initGame(void) {
   /*Create inital snake of 3 length at bottom left of display*/
   fruit = coordinate_create(5, 1);
   head = coordinate_create(4, 6);
-  intermediate = coordinate_create(4, 6);
 	tail1 = coordinate_create(4, 6);
 	tail2 = coordinate_create(4, 6);
   
@@ -101,10 +98,21 @@ void move(void) {
 }
 
 void generateFruit(void) {
-	//time_t t = time(NULL);
-  //srand(t);
-  fruit->x = rand() % 7;
-  fruit->y = rand() % 7;
+	int overlap = 0;
+	time_t t = time(NULL);
+	srand(t);
+	
+	do {
+		fruit->x = rand() % 7;
+		fruit->y = rand() % 7;
+		ListNode *temp = snake->first;
+		while(temp != NULL){
+			if(fruit->x == ((coordinate *)temp->value)->x && fruit->y == ((coordinate *)temp->value)->y){
+				overlap = 1;
+			}
+			temp = temp->next;
+		}
+	} while( overlap );	
 }
 
 void growSnake(void) {
@@ -156,13 +164,12 @@ void updateBoard(void) {
 
 void endGame(void) {
   List_clear_destroy(snake);
-  coordinate_destroy(intermediate);
   coordinate_destroy(fruit);
 }
 
 void checkUpdate(void) {
-  int left = buttons[0];
-  int right = buttons[1];
+  int left = buttonsLast[0];
+  int right = buttonsLast[1];
   if (left) {
     switch (direction) {
     case 1:
