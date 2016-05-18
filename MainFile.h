@@ -34,3 +34,5 @@ extern int play2pMario(void); //Plays a 2p mario "turn" returns 0 if terminating
 extern void updateSheet(int state, uint8_t color);	//Loads slide animation in state state and background color color
 
 extern void rainbowTest(void);	//Loads a rainbow into backdrop
+
+extern int playSnake(void);

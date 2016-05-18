@@ -105,8 +105,8 @@ void move(void) {
 }
 
 void generateFruit(void) {
-	time_t t = time(NULL);
-  srand(t);
+	//time_t t = time(NULL);
+  //srand(t);
   fruit->x = rand() % 7;
   fruit->y = rand() % 7;
 }
@@ -213,7 +213,7 @@ int playSnake(void) {
     endGame();
   } else {
     updateBoard();
-    delay(1000);
+    delay(30000);
   }
 
   swapScreens();
