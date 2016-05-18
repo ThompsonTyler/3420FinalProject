@@ -1,5 +1,4 @@
 #include "list.h"
-#include "time.h" 
 const int gridWidth = 8;
 const int gridLength = 8;
 
@@ -10,6 +9,7 @@ typedef struct {
 
 coordinate *head;
 coordinate *fruit;
+int score = 0;
 int gameState = 0;
 
 /*Directions
@@ -99,14 +99,13 @@ void move(void) {
 
 void generateFruit(void) {
 	ListNode *temp;
-	int overlap = 0;
-	time_t t = time(NULL);
-	srand(t);
+	int overlap;
 	
 	do {
 		temp = snake->first;
 		fruit->x = rand() % 7;
 		fruit->y = rand() % 7;
+		overlap = 0;
 		while(temp != NULL){
 			if(fruit->x == ((coordinate *)temp->value)->x && fruit->y == ((coordinate *)temp->value)->y){
 				overlap = 1;
@@ -121,6 +120,7 @@ void growSnake(void) {
   int y = ((coordinate * )snake->last->value)->y;
   coordinate *coord = coordinate_create(x, y);
   List_push(snake, coord);
+	score++;
 }
 
 int selfCollision(void) {
@@ -222,7 +222,7 @@ int playSnake(void) {
   }
 
   swapScreens();
-	delay(60000);
+	delay(40000);
 
   return gameState;
 }

@@ -375,6 +375,7 @@ int main(void){
 	PIT -> CHANNEL[0].TCTRL = 3;
 	PIN_Initialize();
 	setupPins();
+	//PORTB->PCR[2] = (PORTB->PCR[2] & ~ PORT_PCR_IRQC_MASK) | ((0xB << 16) & PORT_PCR_IRQC_MASK);
 	NVIC_EnableIRQ(PIT0_IRQn);
 	//End of interrupt/basic setups
 	gamestate = 0; //Default values
