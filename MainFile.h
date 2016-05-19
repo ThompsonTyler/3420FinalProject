@@ -47,3 +47,5 @@ extern int playSnake(void);
 extern void buildScroller(char *str);
 
 extern int scroll(int colorize, int color);
+
+extern void setLevel(int x);

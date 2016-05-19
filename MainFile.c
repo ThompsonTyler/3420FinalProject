@@ -29,6 +29,8 @@ int selector; //Integer representing the current game to select.
 							0: Mario
 							*/
 
+int selector_maps;
+
 uint8_t Screen[8][8] = {{0,0,0,0,0,0,0,0}, //Screen that is displayed from sendDataFromArray()
 												 {0,0,0,0,0,0,0,0},
 												 {0,0,0,0,0,0,0,0},
@@ -73,6 +75,42 @@ uint8_t load_screens[3][8][8] = {{{CLEAR,CLEAR,CLEAR,RED,RED,RED,WHITE,CLEAR}, /
 																 {7,7,7,7,7,2,7,7},
 																 {7,7,7,7,7,2,2,7},
 																 {7,7,7,7,7,7,7,7}}};
+
+uint8_t map_screens[4][8][8] = {{{7,7,7,7,7,7,7,7}, //Red and white M
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,6,7,7,7,7},
+																 {6,6,7,7,7,6,7,6}},
+
+																{{7,7,7,7,7,7,7,7}, //Red and white M
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {6,6,6,6,6,6,6,7},
+																 {7,7,7,7,7,7,6,7},
+																 {7,6,6,6,6,6,6,7},
+																 {7,7,7,7,7,7,7,7},
+																 {6,6,6,6,6,6,6,6}},
+																
+																{{7,7,7,7,7,7,7,7}, //Red and white M
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,6,7,7,7},
+																 {7,7,7,6,7,6,7,7},
+																 {6,6,6,7,7,7,6,6}},
+																
+																{{7,7,7,7,7,6,6,6}, //Red and white M
+																 {7,7,7,7,7,6,7,7},
+																 {7,7,7,7,7,6,7,6},
+																 {7,6,6,6,6,6,7,6},
+																 {6,6,7,7,7,7,7,6},
+																 {7,7,7,6,6,6,6,6},
+																 {7,7,7,7,7,7,7,6},
+																 {6,6,6,6,6,6,6,6}}};
 
 void delay(int count){	//Delay for animation
 	int j;
@@ -359,6 +397,17 @@ void loadtoBack(void){ //Sets backdrop to the load_screen represented by the glo
   }
 }
 
+void maptoBack(void){ //Sets backdrop to the load_screen represented by the global variable selector
+	uint8_t lineIndex;
+  uint8_t rowIndex;
+
+  for(lineIndex = 0; lineIndex < 8; lineIndex++){
+    for(rowIndex = 0; rowIndex < 8; rowIndex++){	
+			backdrop[rowIndex][lineIndex] = map_screens[selector_maps][rowIndex][lineIndex];
+    }
+  }
+}
+
 void PIT0_IRQHandler(void){
 	PIT->CHANNEL[0].TFLG = 1;
 	sendDataFromArray();
@@ -367,6 +416,7 @@ void PIT0_IRQHandler(void){
 
 int main(void){
 	int modLoads = sizeof(load_screens) / sizeof(load_screens[0]);
+	int modMaps = sizeof(map_screens) / sizeof(map_screens[0]);
 	int statusGame;
 	//Interrupt and basic setups, do not remove
 	SIM -> SCGC6 |= SIM_SCGC6_PIT_MASK;
@@ -410,17 +460,19 @@ int main(void){
 				}
 			}
 			else if(selector == 1){
-				statusGame = play2pMario();
-				if(statusGame != 1){
-					mario2pReset();
-					if(statusGame == 2){
-						buildScroller("P1 WINS");
-					}
-					else{
-						buildScroller("P2 WINS");
-					}
-					gamestate = 2;
+				if(buttons[0] == 1){
+					selector_maps--;
 				}
+				if(buttons[1] == 1){
+					selector_maps++;
+				}
+				if(buttons[2] == 1){
+					setLevel(selector_maps);
+					gamestate = 3;
+				}
+				selector_maps = mod(selector_maps, modMaps);
+				maptoBack();
+				swapScreens();
 			}
 			else if(selector == 2){
 				statusGame = playSnake();
@@ -428,6 +480,20 @@ int main(void){
 					gamestate = 2;
 				}
 			}
+		}
+		else if (gamestate == 3){
+			statusGame = play2pMario();
+			if(statusGame != 1){
+				mario2pReset();
+				if(statusGame == 2){
+					buildScroller("P1 WINS");
+				}
+				else{
+					buildScroller("P2 WINS");
+				}
+				gamestate = 2;
+			}
+		
 		}
 		else if(gamestate == 2){
 			if(buttons[2] == 1){
