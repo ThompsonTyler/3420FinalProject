@@ -29,6 +29,8 @@ int selector; //Integer representing the current game to select.
 							0: Mario
 							*/
 
+int selector_maps;
+
 uint8_t Screen[8][8] = {{0,0,0,0,0,0,0,0}, //Screen that is displayed from sendDataFromArray()
 												 {0,0,0,0,0,0,0,0},
 												 {0,0,0,0,0,0,0,0},
@@ -65,14 +67,50 @@ uint8_t load_screens[3][8][8] = {{{CLEAR,CLEAR,CLEAR,RED,RED,RED,WHITE,CLEAR}, /
 																 {3,3,0,0,0,0,3,3},
 																 {3,3,0,0,0,0,3,3}},
 
-																 {{1,1,1,1,1,1,1,1}, //Red and white M
-																 {3,3,3,0,0,3,3,3},
-																 {3,3,3,0,0,3,3,3},
-																 {3,3,3,3,3,3,3,3},
-																 {3,3,0,3,3,0,3,3},
-																 {3,3,0,0,0,0,3,3},
-																 {3,3,0,0,0,0,3,3},
-																 {3,3,0,0,0,0,3,3}}};
+																 {{7,7,7,7,7,7,7,7}, //Red and white M
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,6,7,3,2,2,7,7},
+																 {7,7,7,7,7,2,7,7},
+																 {7,7,7,7,7,2,7,7},
+																 {7,7,7,7,7,2,2,7},
+																 {7,7,7,7,7,7,7,7}}};
+
+uint8_t map_screens[4][8][8] = {{{7,7,7,7,7,7,7,7}, //Red and white M
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,6,7,7,7,7},
+																 {6,6,7,7,7,6,7,6}},
+
+																{{7,7,7,7,7,7,7,7}, //Red and white M
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {6,6,6,6,6,6,6,7},
+																 {7,7,7,7,7,7,6,7},
+																 {7,6,6,6,6,6,6,7},
+																 {7,7,7,7,7,7,7,7},
+																 {6,6,6,6,6,6,6,6}},
+																
+																{{7,7,7,7,7,7,7,7}, //Red and white M
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,7,7,7,7},
+																 {7,7,7,7,6,7,7,7},
+																 {7,7,7,6,7,6,7,7},
+																 {6,6,6,7,7,7,6,6}},
+																
+																{{7,7,7,7,7,6,6,6}, //Red and white M
+																 {7,7,7,7,7,6,7,7},
+																 {7,7,7,7,7,6,7,6},
+																 {7,6,6,6,6,6,7,6},
+																 {6,6,7,7,7,7,7,6},
+																 {7,7,7,6,6,6,6,6},
+																 {7,7,7,7,7,7,7,6},
+																 {6,6,6,6,6,6,6,6}}};
 
 void delay(int count){	//Delay for animation
 	int j;
@@ -359,6 +397,17 @@ void loadtoBack(void){ //Sets backdrop to the load_screen represented by the glo
   }
 }
 
+void maptoBack(void){ //Sets backdrop to the load_screen represented by the global variable selector
+	uint8_t lineIndex;
+  uint8_t rowIndex;
+
+  for(lineIndex = 0; lineIndex < 8; lineIndex++){
+    for(rowIndex = 0; rowIndex < 8; rowIndex++){	
+			backdrop[rowIndex][lineIndex] = map_screens[selector_maps][rowIndex][lineIndex];
+    }
+  }
+}
+
 void PIT0_IRQHandler(void){
 	PIT->CHANNEL[0].TFLG = 1;
 	sendDataFromArray();
@@ -367,6 +416,7 @@ void PIT0_IRQHandler(void){
 
 int main(void){
 	int modLoads = sizeof(load_screens) / sizeof(load_screens[0]);
+	int modMaps = sizeof(map_screens) / sizeof(map_screens[0]);
 	int statusGame;
 	//Interrupt and basic setups, do not remove
 	SIM -> SCGC6 |= SIM_SCGC6_PIT_MASK;
@@ -375,13 +425,12 @@ int main(void){
 	PIT -> CHANNEL[0].TCTRL = 3;
 	PIN_Initialize();
 	setupPins();
-	//PORTB->PCR[2] = (PORTB->PCR[2] & ~ PORT_PCR_IRQC_MASK) | ((0xB << 16) & PORT_PCR_IRQC_MASK);
 	NVIC_EnableIRQ(PIT0_IRQn);
 	//End of interrupt/basic setups
 	gamestate = 0; //Default values
-	end = 0;
+	end = 1;
 	selector = 0;
-	while(!end){ //Check if game is done or not
+	while(1){ //Check if game is done or not
 		checkButtons();//Update buttons
 		if(gamestate == 0){ //Check if we are in loadscreen position
 			if(buttons[0] == 1){//Move right
@@ -401,37 +450,65 @@ int main(void){
 			if(selector == 0){//Mario 1p
 				statusGame = play1pMario();//Run mario game engine
 				if(statusGame != 1){//Check if game is done
-					end = 1;
+					if(statusGame == 5){
+						buildScroller("1P MARIO NEEDS RESET");
+					}
+					else{
+						buildScroller("YOU WIN");
+					}
+					gamestate = 2;
 				}
 			}
 			else if(selector == 1){
-				statusGame = play2pMario();
-				if(statusGame != 1){
-					end = 1;
+				if(buttons[0] == 1){
+					selector_maps--;
 				}
+				if(buttons[1] == 1){
+					selector_maps++;
+				}
+				if(buttons[2] == 1){
+					setLevel(selector_maps);
+					gamestate = 3;
+				}
+				selector_maps = mod(selector_maps, modMaps);
+				maptoBack();
+				swapScreens();
 			}
 			else if(selector == 2){
 				statusGame = playSnake();
 				if(statusGame != 1){
+					gamestate = 2;
+				}
+			}
+		}
+		else if (gamestate == 3){
+			statusGame = play2pMario();
+			if(statusGame != 1){
+				mario2pReset();
+				if(statusGame == 2){
+					buildScroller("P1 WINS");
+				}
+				else{
+					buildScroller("P2 WINS");
+				}
+				gamestate = 2;
+			}
+		
+		}
+		else if(gamestate == 2){
+			if(buttons[2] == 1){
+				gamestate = 0;
+			}
+			else{
+				if(end == 1){
+					end = scroll(1, BLUE);
+				}
+				else{
+					buildScroller("CLICK TO PLAY AGAIN");
 					end = 1;
 				}
 			}
 		}
 	}
 	
-	while(1){ //Display Winning animation
-		delay(5000); 
-		selector++;
-		selector = mod(selector, 12);
-		if(statusGame == 2){
-			updateSheet(selector, BLUE);
-		}
-		else if(statusGame == 3){
-			updateSheet(selector, GREEN);
-		}
-		else{
-			updateSheet(selector, RED);
-		}
-		swapScreens();
-	}
 }

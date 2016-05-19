@@ -3,8 +3,8 @@
 #define MARIOLINE 190 //Matrix size definitions. [Row][Line]
 #define MARIOROW 8
 
-int xMar = 2; //Variable representing xPosition for mario 1p(Left = 0)
-int yMar = 6; //Variable representing yPosition for mario 1p(Top = 0)
+int xMar = 1; //Variable representing xPosition for mario 1p(Left = 0)
+int yMar = 2; //Variable representing yPosition for mario 1p(Top = 0)
 int xStart[4] = {5,2,5,1};
 int yStart[4] = {6,6,6,2};
 int stateMar = 0; // State diagram:
@@ -12,6 +12,7 @@ int stateMar = 0; // State diagram:
 int level = 0;//Current level, 0-3
 int animation = 0;
 int animationCounter;
+int finished = 0;
 
 uint8_t marioBack1p[4][8][190] = {{{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 7, 3, 7, 3, 7, 7, 7, 7, 7},
 {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 2, 2, 2, 2, 2, 2, 2, 7, 7, 2, 2, 2, 2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 2, 7, 7, 7, 7, 7, 7, 7, 7, 2, 2, 2, 7, 7, 7, 2, 2, 2, 2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7},
@@ -49,6 +50,7 @@ uint8_t marioBack1p[4][8][190] = {{{7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
 {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 5, 5, 5, 7, 7, 5, 5, 5, 5, 5, 5, 5, 7, 7, 5, 5, 5, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 5, 5, 7, 7, 5, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 7, 7, 7, 7, 7, 2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3, 7, 0, 7, 3, 7, 7, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
 {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 5, 5, 5, 7, 7, 5, 5, 5, 5, 5, 5, 5, 7, 7, 5, 5, 5, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7}}};
 															
+	
 void emptyBlock(int row, int line){
 	marioBack1p[level][row][line] = CLEAR;
 }
@@ -132,6 +134,10 @@ int play1pMario(void){ //Return 0 if terminate, 1 if not done yet
 	int flag = 0;
 	int xDraw;
 	int yDraw;
+	if (finished == 1){
+		delay(2000);
+		return 5;
+	}
 	if(animation == 0){
 		if(stateMar == 0){
 			if(buttonsLast[0] == 1){
@@ -260,6 +266,7 @@ int play1pMario(void){ //Return 0 if terminate, 1 if not done yet
 				animationCounter--;
 				if(animationCounter == 0){
 					if(level == 3){
+						finished = 1;
 						return 0;
 					}
 					else{
@@ -323,6 +330,6 @@ int play1pMario(void){ //Return 0 if terminate, 1 if not done yet
 		loadtoBackBufferFullMario1p(xDraw, yDraw, 0, 0, 1, 1); //Load marioBack1p area to backdrop
 	}
 	swapScreens(); //Push update to screen.
-	delay(6000);
+	delay(4000);
 	return 1;//Not terminating yet
 }
