@@ -1,9 +1,7 @@
 #include "MainFile.h"
 
-void updateSheet(int state, uint8_t color); //Updates backdrop to animation state state, background color color
+void buildScroller(char *str); //Loads the scrolling variables as necesary to load a string input maximum 20 characters of "A-Z", " ", and "0-9"
 
-void rainbowTest(void);	//Loads rainbow into backdrop
-
-void buildScroller(char *str);
-
-int scroll(int colorize, int color);
+int scroll(int colorize, int color); //Scrolls 1 step, colorize = 1 colors based on color, otherwise = 1. Color is color 0-6(no clear) if outside of this range then it will randomly choose a color
+																		 //each step. returns 1 not done, returns 0 when done.
+		

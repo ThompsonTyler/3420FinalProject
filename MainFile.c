@@ -20,16 +20,19 @@ int buttonsLast[6] = {0,0,0,0,0,0}; //Real-time globals for buttons
 int gamestate; //Integer representing game state:
 							 /*
 							 0: Start screens
-							 1: Game
+							 1: Game (levels for 2p mario)
                2: End Screen (animation)
+							 3: LGame (for 2p mario)
 							 */
-int end; //Integer representing overall conditional loop for exit set to 1.
+int end; //Integer representing conditional loop in final animation stage
 int selector; //Integer representing the current game to select.
 							/*
 							0: Mario
+							1: 2p Mario
+							2: Snake
 							*/
 
-int selector_maps;
+int selector_maps; //Integer representing current map for mario 2p.
 
 uint8_t Screen[8][8] = {{0,0,0,0,0,0,0,0}, //Screen that is displayed from sendDataFromArray()
 												 {0,0,0,0,0,0,0,0},
@@ -67,7 +70,7 @@ uint8_t load_screens[3][8][8] = {{{CLEAR,CLEAR,CLEAR,RED,RED,RED,WHITE,CLEAR}, /
 																 {3,3,0,0,0,0,3,3},
 																 {3,3,0,0,0,0,3,3}},
 
-																 {{7,7,7,7,7,7,7,7}, //Red and white M
+																 {{7,7,7,7,7,7,7,7}, //Snake
 																 {7,7,7,7,7,7,7,7},
 																 {7,7,7,7,7,7,7,7},
 																 {7,6,7,3,2,2,7,7},
@@ -76,7 +79,7 @@ uint8_t load_screens[3][8][8] = {{{CLEAR,CLEAR,CLEAR,RED,RED,RED,WHITE,CLEAR}, /
 																 {7,7,7,7,7,2,2,7},
 																 {7,7,7,7,7,7,7,7}}};
 
-uint8_t map_screens[4][8][8] = {{{7,7,7,7,7,7,7,7}, //Red and white M
+uint8_t map_screens[4][8][8] = {{{7,7,7,7,7,7,7,7}, //Platform Level
 																 {7,7,7,7,7,7,7,7},
 																 {7,7,7,7,7,7,7,7},
 																 {7,7,7,7,7,7,7,7},
@@ -85,7 +88,7 @@ uint8_t map_screens[4][8][8] = {{{7,7,7,7,7,7,7,7}, //Red and white M
 																 {7,7,7,6,7,7,7,7},
 																 {6,6,7,7,7,6,7,6}},
 
-																{{7,7,7,7,7,7,7,7}, //Red and white M
+																{{7,7,7,7,7,7,7,7}, //Paths Level
 																 {7,7,7,7,7,7,7,7},
 																 {7,7,7,7,7,7,7,7},
 																 {6,6,6,6,6,6,6,7},
@@ -94,7 +97,7 @@ uint8_t map_screens[4][8][8] = {{{7,7,7,7,7,7,7,7}, //Red and white M
 																 {7,7,7,7,7,7,7,7},
 																 {6,6,6,6,6,6,6,6}},
 																
-																{{7,7,7,7,7,7,7,7}, //Red and white M
+																{{7,7,7,7,7,7,7,7}, //Runner Level
 																 {7,7,7,7,7,7,7,7},
 																 {7,7,7,7,7,7,7,7},
 																 {7,7,7,7,7,7,7,7},
@@ -103,7 +106,7 @@ uint8_t map_screens[4][8][8] = {{{7,7,7,7,7,7,7,7}, //Red and white M
 																 {7,7,7,6,7,6,7,7},
 																 {6,6,6,7,7,7,6,6}},
 																
-																{{7,7,7,7,7,6,6,6}, //Red and white M
+																{{7,7,7,7,7,6,6,6}, //Maze Level
 																 {7,7,7,7,7,6,7,7},
 																 {7,7,7,7,7,6,7,6},
 																 {7,6,6,6,6,6,7,6},
@@ -112,7 +115,7 @@ uint8_t map_screens[4][8][8] = {{{7,7,7,7,7,7,7,7}, //Red and white M
 																 {7,7,7,7,7,7,7,6},
 																 {6,6,6,6,6,6,6,6}}};
 
-void delay(int count){	//Delay for animation
+void delay(int count){	//Delays as needed
 	int j;
 	for(j = 0; j < count; j++);
 }
@@ -208,6 +211,7 @@ void sendDataFromArray(void){ //Iterates through screen and displays to matrix
 	PIT->CHANNEL[0].TCTRL = 1;
 	
 	for(lineIndex = 0; lineIndex < 8; lineIndex++){
+		
 		//Ground anode
 		for(rowIndex = 0; rowIndex < 8; rowIndex++){
 			if(lineIndex == rowIndex){
@@ -255,7 +259,7 @@ void sendDataFromArray(void){ //Iterates through screen and displays to matrix
 	PIT->CHANNEL[0].TCTRL = 3;
 }
 
-void clearBack(void){ //Set screen to empty/clear
+void clearBack(void){ //Set backdrop to empty/clear
 	uint8_t lineIndex;
 	uint8_t rowIndex;
 	
@@ -397,7 +401,7 @@ void loadtoBack(void){ //Sets backdrop to the load_screen represented by the glo
   }
 }
 
-void maptoBack(void){ //Sets backdrop to the load_screen represented by the global variable selector
+void maptoBack(void){ //Sets backdrop to the map_screen represented by the global variable selector_maps
 	uint8_t lineIndex;
   uint8_t rowIndex;
 
@@ -408,15 +412,15 @@ void maptoBack(void){ //Sets backdrop to the load_screen represented by the glob
   }
 }
 
-void PIT0_IRQHandler(void){
+void PIT0_IRQHandler(void){ //Handler for interrupt for displaying to matrix
 	PIT->CHANNEL[0].TFLG = 1;
 	sendDataFromArray();
 	PIT -> CHANNEL[0].LDVAL = 0x85EA;
 }
 
 int main(void){
-	int modLoads = sizeof(load_screens) / sizeof(load_screens[0]);
-	int modMaps = sizeof(map_screens) / sizeof(map_screens[0]);
+	int modLoads = sizeof(load_screens) / sizeof(load_screens[0]); //Get size of load screens
+	int modMaps = sizeof(map_screens) / sizeof(map_screens[0]); //Get size of maps
 	int statusGame;
 	//Interrupt and basic setups, do not remove
 	SIM -> SCGC6 |= SIM_SCGC6_PIT_MASK;
@@ -456,54 +460,54 @@ int main(void){
 					else{
 						buildScroller("YOU WIN");
 					}
-					gamestate = 2;
+					gamestate = 2; //Move to final animation
 				}
 			}
-			else if(selector == 1){
-				if(buttons[0] == 1){
+			else if(selector == 1){ //Mario 2p Maps
+				if(buttons[0] == 1){//Move Left
 					selector_maps--;
 				}
-				if(buttons[1] == 1){
+				if(buttons[1] == 1){//Move Right
 					selector_maps++;
 				}
-				if(buttons[2] == 1){
-					setLevel(selector_maps);
-					gamestate = 3;
+				if(buttons[2] == 1){//Select Map
+					setLevel(selector_maps);//Set map as destination
+					gamestate = 3;//Move to 2p Mario
 				}
-				selector_maps = mod(selector_maps, modMaps);
-				maptoBack();
-				swapScreens();
+				selector_maps = mod(selector_maps, modMaps); //Clip to bounds of 2p mario maps
+				maptoBack();	//Push map to backdrop
+				swapScreens();	//update screen to map
 			}
-			else if(selector == 2){
-				statusGame = playSnake();
-				if(statusGame != 1){
+			else if(selector == 2){//Snake
+				statusGame = playSnake(); 
+				if(statusGame != 1){//Check if done yet
 					gamestate = 2;
 				}
 			}
 		}
-		else if (gamestate == 3){
-			statusGame = play2pMario();
-			if(statusGame != 1){
-				mario2pReset();
-				if(statusGame == 2){
+		else if (gamestate == 3){ //2p Mario
+			statusGame = play2pMario();//Play 2p Mario
+			if(statusGame != 1){//Check if done
+				mario2pReset();//Reset for next time
+				if(statusGame == 2){//Player 1 wins
 					buildScroller("P1 WINS");
 				}
-				else{
+				else{//Player 2 wins
 					buildScroller("P2 WINS");
 				}
-				gamestate = 2;
+				gamestate = 2;//Go to final animation
 			}
 		
 		}
-		else if(gamestate == 2){
-			if(buttons[2] == 1){
-				gamestate = 0;
+		else if(gamestate == 2){//Finishing animation
+			if(buttons[2] == 1){//Check for select button 
+				gamestate = 0;//Go to game select
 			}
 			else{
-				if(end == 1){
+				if(end == 1){//Wait for scroll to end
 					end = scroll(1, BLUE);
 				}
-				else{
+				else{//Once it does, update player that they can press select to play again
 					buildScroller("CLICK TO PLAY AGAIN");
 					end = 1;
 				}

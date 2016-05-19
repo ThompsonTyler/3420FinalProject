@@ -34,18 +34,13 @@ extern int play1pMario(void);	//Plays a 1p mario "turn" returns 0 if terminating
 
 extern int play2pMario(void); //Plays a 2p mario "turn" returns 0 if terminating, 1 if not, 2 if p1 wins, 3 if p2 wins
 
-extern void mario2pReset(void);
+extern void mario2pReset(void); //Resets 2p mario, defaulting the init variables
 
-extern void snakeReset(void);
+extern int playSnake(void);  //Plays a snake "turn" returns 0 if terminating, 1 if not
 
-extern void updateSheet(int state, uint8_t color);	//Loads slide animation in state state and background color color
+extern void buildScroller(char *str); //Builds the internal variables of scroller based on an input string up to 20 chars of "A-Z", " ", and "0-9"
 
-extern void rainbowTest(void);	//Loads a rainbow into backdrop
+extern int scroll(int colorize, int color); //Scrolls 1 step, returning 0 if done, 1 if not. If colorize == 1 then colors to color instead of white, color is 0-6(no clear), if not then it
+																						//randomizes the color every time it is called
 
-extern int playSnake(void);
-
-extern void buildScroller(char *str);
-
-extern int scroll(int colorize, int color);
-
-extern void setLevel(int x);
+extern void setLevel(int x); //Sets the internal variables for 2p mario to configure to each level input of 0-3
